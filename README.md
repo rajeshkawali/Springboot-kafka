@@ -1,6 +1,64 @@
-# Apache Kafka 3.9.2 — Basic Commands
+# Spring Boot Kafka Producer & Consumer
 
-Quick reference for a **Spring Boot Kafka Producer/Consumer** banking practice project.
+## Overview
+
+A simple event-driven banking application built using **Spring Boot and Apache Kafka** to demonstrate asynchronous communication between two microservices using Java POJOs and JSON serialization.
+
+## Tech Stack
+
+- Java
+- Spring Boot 4
+- Apache Kafka 3.9.2
+- Spring Kafka
+- Maven
+- REST API
+
+## Architecture
+
+```text
+Client / Postman
+       |
+       v
+Bank Producer (Spring Boot)
+       |
+       | KafkaTemplate
+       v
+Kafka Topic (bank-topic)
+       |
+       | @KafkaListener
+       v
+Bank Consumer (Spring Boot)
+       |
+       v
+Process / Log Transaction
+```
+
+## Project Structure
+
+```text
+spring-boot-kafka/
+├── producer/
+│   ├── controller/
+│   ├── service/
+│   ├── dto/
+│   └── application.properties
+│
+├── consumer/
+│  	├── controller/
+│   ├── service/
+│   ├── dto/
+│   └── application.properties
+│
+└── README.md
+```
+
+## How It Works
+
+1. Client sends a banking transaction to the Producer REST API.
+2. Producer converts the Java POJO into JSON and publishes it using `KafkaTemplate`.
+3. Kafka stores the message in the `bank-topic` topic.
+4. Consumer receives the message using `@KafkaListener`.
+5. Consumer deserializes JSON into a Java POJO and processes the transaction.
 
 - **Topic:** `bank-topic`
 - **Consumer group:** `bank-group`
@@ -118,11 +176,11 @@ spring.kafka.consumer.group-id=bank-group
 spring.kafka.consumer.auto-offset-reset=earliest
 spring.kafka.consumer.key-deserializer=org.apache.kafka.common.serialization.StringDeserializer
 spring.kafka.consumer.value-deserializer=org.springframework.kafka.support.serializer.JsonDeserializer
-spring.kafka.consumer.properties.spring.json.trusted.packages=com.bank.dto
-spring.kafka.consumer.properties.spring.json.value.default.type=com.bank.dto.BankTransaction
+spring.kafka.consumer.properties.spring.json.trusted.packages=com.rajeshkawali.dto
+spring.kafka.consumer.properties.spring.json.value.default.type=com.rajeshkawali.dto.BankTransaction
 ```
 
-> Replace `com.bank.dto.BankTransaction` with your actual fully qualified POJO class name. Console-produced JSON does not carry Spring Kafka type headers, so the default type setting helps the consumer deserialize it. For Spring-to-Spring messages, ensure producer type headers and consumer type mappings are compatible.
+> Replace `com.rajeshkawali.dto.BankTransaction` with your actual fully qualified POJO class name. Console-produced JSON does not carry Spring Kafka type headers, so the default type setting helps the consumer deserialize it. For Spring-to-Spring messages, ensure producer type headers and consumer type mappings are compatible.
 
 **Important:** `auto-offset-reset=earliest` applies only when the group has no committed offset for a partition (or its offset is no longer valid). It does not automatically replay previously consumed records.
 
